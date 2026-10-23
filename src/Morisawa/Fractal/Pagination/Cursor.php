@@ -2,12 +2,6 @@
 
 namespace Morisawa\Fractal\Pagination;
 
-/**
- * A generic cursor adapter.
- *
- * @author Isern Palaus <ipalaus@ipalaus.com>
- * @author Michele Massari <michele@michelemassari.net>
- */
 class Cursor implements CursorInterface
 {
     /**

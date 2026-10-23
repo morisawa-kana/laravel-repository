@@ -113,7 +113,7 @@ class Manager
 
         if (! is_array($includes)) {
             throw new \InvalidArgumentException(
-                'The parseIncludes() method expects a string or an array. '.gettype($includes).' given'
+                'The parseIncludes() method expects a string or an array. '.gettype($includes).' given',
             );
         }
 
@@ -200,9 +200,9 @@ class Manager
      */
     public function getFieldset(string $type): ?ParamBag
     {
-        return ! isset($this->requestedFieldsets[$type]) ?
-            null :
-            new ParamBag($this->requestedFieldsets[$type]);
+        return ! isset($this->requestedFieldsets[$type])
+            ? null
+            : new ParamBag($this->requestedFieldsets[$type]);
     }
 
     /**
@@ -218,7 +218,7 @@ class Manager
 
         if (! is_array($excludes)) {
             throw new \InvalidArgumentException(
-                'The parseExcludes() method expects a string or an array. '.gettype($excludes).' given'
+                'The parseExcludes() method expects a string or an array. '.gettype($excludes).' given',
             );
         }
 

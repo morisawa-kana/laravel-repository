@@ -177,7 +177,7 @@ class Scope implements \JsonSerializable
                 // the objects that are sideloaded, it can do so now.
                 $includedData = $serializer->filterIncludes(
                     $includedData,
-                    $data
+                    $data,
                 );
             }
 
@@ -242,20 +242,24 @@ class Scope implements \JsonSerializable
     {
         if (! ($this->resource instanceof Primitive)) {
             throw new InvalidArgumentException(
-                'Argument $resource should be an instance of Morisawa\Fractal\Resource\Primitive'
+                'Argument $resource should be an instance of Morisawa\Fractal\Resource\Primitive',
             );
         }
 
         $transformer = $this->resource->getTransformer();
         $data = $this->resource->getData();
 
-        if ($transformer === null) {
-            $transformedData = $data;
-        } elseif (is_callable($transformer)) {
-            $transformedData = call_user_func($transformer, $data);
-        } else {
-            $transformer->setCurrentScope($this);
-            $transformedData = $transformer->transform($data);
+        $this->setScope($transformer);
+        try {
+            if ($transformer === null) {
+                $transformedData = $data;
+            } elseif (is_callable($transformer)) {
+                $transformedData = call_user_func($transformer, $data);
+            } else {
+                $transformedData = $transformer->transform($data);
+            }
+        } finally {
+            $this->unsetScope($transformer);
         }
 
         return $transformedData;
@@ -285,7 +289,7 @@ class Scope implements \JsonSerializable
         } else {
             throw new InvalidArgumentException(
                 'Argument $resource should be an instance of Morisawa\Fractal\Resource\Item'
-                .' or Morisawa\Fractal\Resource\Collection'
+                .' or Morisawa\Fractal\Resource\Collection',
             );
         }
 
@@ -335,20 +339,24 @@ class Scope implements \JsonSerializable
     {
         $includedData = [];
 
-        if (is_callable($transformer)) {
-            $transformedData = call_user_func($transformer, $data);
-        } else {
-            $transformer->setCurrentScope($this);
-            $transformedData = $transformer->transform($data);
-        }
+        $this->setScope($transformer);
+        try {
+            if (is_callable($transformer)) {
+                $transformedData = call_user_func($transformer, $data);
+            } else {
+                $transformedData = $transformer->transform($data);
+            }
 
-        if ($this->transformerHasIncludes($transformer)) {
-            $includedData = $this->fireIncludedTransformers($transformer, $data);
-            $transformedData = $this->manager->getSerializer()->mergeIncludes($transformedData, $includedData);
-        }
+            if ($this->transformerHasIncludes($transformer)) {
+                $includedData = $this->fireIncludedTransformers($transformer, $data);
+                $transformedData = $this->manager->getSerializer()->mergeIncludes($transformedData, $includedData);
+            }
 
-        // Stick only with requested fields
-        $transformedData = $this->filterFieldsets($transformedData);
+            // Stick only with requested fields
+            $transformedData = $this->filterFieldsets($transformedData);
+        } finally {
+            $this->unsetScope($transformer);
+        }
 
         return [$transformedData, $includedData];
     }
@@ -412,8 +420,8 @@ class Scope implements \JsonSerializable
         $filterFieldset = array_flip(
             array_merge(
                 $serializer->getMandatoryFields(),
-                $requestedFieldset
-            )
+                $requestedFieldset,
+            ),
         );
 
         return array_intersect_key($data, $filterFieldset);
@@ -447,5 +455,19 @@ class Scope implements \JsonSerializable
     protected function getResourceType(): string
     {
         return $this->resource->getResourceKey();
+    }
+
+    protected function setScope($transformer): void
+    {
+        if ($transformer instanceof TransformerAbstract) {
+            $transformer->setCurrentScope($this);
+        }
+    }
+
+    protected function unsetScope($transformer): void
+    {
+        if ($transformer instanceof TransformerAbstract) {
+            $transformer->unsetCurrentScope();
+        }
     }
 }

@@ -91,7 +91,7 @@ abstract class TransformerAbstract
                 $scope,
                 $data,
                 $includedData,
-                $include
+                $include,
             );
         }
 
@@ -130,7 +130,7 @@ abstract class TransformerAbstract
      * @param  mixed  $data
      * @return ResourceInterface|false
      *
-     * @throws \Exception
+     * @throws \InvalidArgumentException
      */
     protected function callIncludeMethod(Scope $scope, string $includeName, $data)
     {
@@ -148,9 +148,9 @@ abstract class TransformerAbstract
                 str_replace(
                     '-',
                     ' ',
-                    $includeName
-                )
-            ))
+                    $includeName,
+                ),
+            )),
         );
 
         $resource = call_user_func([$this, $methodName], $data, $params);
@@ -160,12 +160,12 @@ abstract class TransformerAbstract
         }
 
         if (! $resource instanceof ResourceInterface) {
-            throw new \Exception(sprintf(
+            throw new \InvalidArgumentException(sprintf(
                 'Invalid return value from %s::%s(). Expected %s, received %s.',
                 __CLASS__,
                 $methodName,
                 'Morisawa\Fractal\Resource\ResourceInterface',
-                is_object($resource) ? get_class($resource) : gettype($resource)
+                is_object($resource) ? get_class($resource) : gettype($resource),
             ));
         }
 
@@ -198,6 +198,13 @@ abstract class TransformerAbstract
     public function setCurrentScope(Scope $currentScope): self
     {
         $this->currentScope = $currentScope;
+
+        return $this;
+    }
+
+    public function unsetCurrentScope(): self
+    {
+        $this->currentScope = null;
 
         return $this;
     }

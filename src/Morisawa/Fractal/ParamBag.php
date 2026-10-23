@@ -7,6 +7,8 @@ namespace Morisawa\Fractal;
  */
 class ParamBag implements \ArrayAccess, \IteratorAggregate
 {
+    const MODIFY_NOT_PERMITTED = 'Modifying parameters is not permitted';
+
     protected array $params = [];
 
     /**
@@ -56,7 +58,7 @@ class ParamBag implements \ArrayAccess, \IteratorAggregate
      */
     public function __set(string $key, $value): void
     {
-        throw new \LogicException('Modifying parameters is not permitted');
+        throw new \LogicException(self::MODIFY_NOT_PERMITTED);
     }
 
     /**
@@ -66,7 +68,7 @@ class ParamBag implements \ArrayAccess, \IteratorAggregate
      */
     public function __unset(string $key): void
     {
-        throw new \LogicException('Modifying parameters is not permitted');
+        throw new \LogicException(self::MODIFY_NOT_PERMITTED);
     }
 
     /**
@@ -101,7 +103,7 @@ class ParamBag implements \ArrayAccess, \IteratorAggregate
      */
     public function offsetSet($key, $value): void
     {
-        throw new \LogicException('Modifying parameters is not permitted');
+        throw new \LogicException(self::MODIFY_NOT_PERMITTED);
     }
 
     /**
@@ -113,7 +115,7 @@ class ParamBag implements \ArrayAccess, \IteratorAggregate
      */
     public function offsetUnset($key): void
     {
-        throw new \LogicException('Modifying parameters is not permitted');
+        throw new \LogicException(self::MODIFY_NOT_PERMITTED);
     }
 
     /**
