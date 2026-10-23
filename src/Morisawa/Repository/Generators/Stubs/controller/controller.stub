@@ -1,0 +1,48 @@
+<?php
+
+$NAMESPACE$
+
+use AllowDynamicProperties;
+use App\Http\Controllers\Controller;
+use $APPNAME$Http\Requests\$REQUEST$\CreateRequest;
+use $APPNAME$Http\Requests\$REQUEST$\UpdateRequest;
+
+/**
+ * Class $CONTROLLER$Controller.
+ * @note 
+ * @package $NAMESPACE$
+ */
+#[AllowDynamicProperties] class $CONTROLLER$Controller extends Controller
+{
+
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    public function index()
+    {
+
+    }
+
+    public function store(CreateRequest $request)
+    {
+       $data = $request->validated();
+
+    }
+    public function show($id)
+    {
+
+    }
+
+    public function update(UpdateRequest $request, $id)
+    {
+        $data = $request->validated();
+
+    }
+
+    public function destroy($id)
+    {
+
+    }
+}
