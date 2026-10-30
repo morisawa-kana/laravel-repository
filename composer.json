@@ -20,8 +20,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Morisawa\\Repository\\": "src/Morisawa/Repository/",
-      "Morisawa\\Fractal\\": "src/Morisawa/Fractal/"
+      "Morisawa\\": "src/Morisawa/"
     }
   },
   "config": {
@@ -30,7 +29,7 @@
   "extra": {
     "laravel": {
       "providers": [
-        "Morisawa\\Repository\\Providers\\RepositoryServiceProvider"
+        "Morisawa\\Providers\\RepositoryServiceProvider"
       ]
     }
   },
