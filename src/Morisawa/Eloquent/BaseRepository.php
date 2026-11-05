@@ -4,7 +4,8 @@ namespace Morisawa\Eloquent;
 
 use Closure;
 use Illuminate\Container\Container as Application;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Contracts\Pagination\Paginator;
+use Illuminate\Contracts\Pagination\CursorPaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
@@ -418,6 +419,12 @@ abstract class BaseRepository implements RepositoryCriteriaInterface, Repository
     public function simplePaginate($limit = null, $columns = ['*'])
     {
         return $this->paginate($limit, $columns, 'simplePaginate');
+    }
+
+    /** Retrieve data using cursor pagination without a total count. */
+    public function cursorPaginate($limit = null, $columns = ['*'])
+    {
+        return $this->paginate($limit, $columns, 'cursorPaginate');
     }
 
     /**
@@ -1091,7 +1098,7 @@ abstract class BaseRepository implements RepositoryCriteriaInterface, Repository
     public function parserResult($result)
     {
         if ($this->presenter instanceof PresenterInterface) {
-            if ($result instanceof Collection || $result instanceof LengthAwarePaginator) {
+            if ($result instanceof Collection || $result instanceof Paginator || $result instanceof CursorPaginator) {
                 $result->each(function ($model) {
                     if ($model instanceof Presentable) {
                         $model->setPresenter($this->presenter);

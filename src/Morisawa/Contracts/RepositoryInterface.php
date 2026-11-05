@@ -71,6 +71,9 @@ interface RepositoryInterface
      */
     public function simplePaginate($limit = null, $columns = ['*']);
 
+    /** Retrieve data using cursor pagination. */
+    public function cursorPaginate($limit = null, $columns = ['*']);
+
     /**
      * Find data by id
      *

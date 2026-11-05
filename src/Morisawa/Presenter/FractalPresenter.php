@@ -5,6 +5,7 @@ namespace Morisawa\Presenter;
 use Exception;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Pagination\AbstractPaginator;
+use Illuminate\Pagination\AbstractCursorPaginator;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Morisawa\Manager;
@@ -121,7 +122,7 @@ abstract class FractalPresenter implements PresenterInterface
 
         if ($data instanceof EloquentCollection) {
             $this->resource = $this->transformCollection($data);
-        } elseif ($data instanceof AbstractPaginator) {
+        } elseif ($data instanceof AbstractPaginator || $data instanceof AbstractCursorPaginator) {
             $this->resource = $this->transformPaginator($data);
         } else {
             $this->resource = $this->transformItem($data);
@@ -147,14 +148,35 @@ abstract class FractalPresenter implements PresenterInterface
     }
 
     /**
-     * @param  AbstractPaginator|LengthAwarePaginator|Paginator  $paginator
+     * @param  AbstractPaginator|AbstractCursorPaginator  $paginator
      * @return Collection
      */
     protected function transformPaginator($paginator)
     {
         $collection = $paginator->getCollection();
         $resource = new Collection($collection, $this->getTransformer(), $this->resourceKeyCollection);
-        $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
+        if ($paginator instanceof LengthAwarePaginator) {
+            $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
+        } else {
+            $pagination = [
+                'count' => $paginator->count(),
+                'per_page' => $paginator->perPage(),
+                'has_more' => $paginator->hasMorePages(),
+                'links' => [
+                    'previous' => $paginator->previousPageUrl(),
+                    'next' => $paginator->nextPageUrl(),
+                ],
+            ];
+
+            if ($paginator instanceof AbstractCursorPaginator) {
+                $pagination['next_cursor'] = $paginator->nextCursor()?->encode();
+                $pagination['prev_cursor'] = $paginator->previousCursor()?->encode();
+            } else {
+                $pagination['current_page'] = $paginator->currentPage();
+            }
+
+            $resource->setMetaValue('pagination', $pagination);
+        }
 
         return $resource;
     }
